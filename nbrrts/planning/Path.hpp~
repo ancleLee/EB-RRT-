@@ -1,0 +1,131 @@
+#pragma once
+
+#include <vector>
+
+
+namespace Planning {
+
+    /**
+     * @brief Reduce the vector to @maxSize length
+     * @details We do this by sampling to evenly distribute deletions
+     * 
+     * @param states     The vector of T values to sample
+     * @param maxSize Max length of the resulting vector
+     */
+    template<typename T>
+    void DownSampleVector(std::vector<T> &states, size_t maxSize) {
+        if (states.size() > maxSize) {
+            int toDelete = states.size() - maxSize;
+            float spacing = (float)states.size() / (float)toDelete;
+            float i = 0.0;
+            while (toDelete) {
+                toDelete--;
+                states.erase(states.begin() + (int)(i+0.5));
+                i += spacing - 1.0;
+            }
+        }
+    }
+
+
+    /**
+     * @brief Deletes waypoints from @pts
+     * 
+     * @param pts A vector of states that constitutes the path
+     * @param transitionValidator A function that returns a boolean indicating
+     *        whether or not a straight connection exists between the two given states
+     */
+    /*template<typename T>
+    void SmoothPath(std::vector<T> &pts, const StateSpace<T> &stateSpace) {
+        int span = 2;
+        while (span < pts.size()) {
+            bool changed = false;
+            for (int i = 0; i+span < pts.size(); i++) {
+                if (stateSpace.transitionValid(pts[i], pts[i+span])) {
+                    for (int x = 1; x < span; x++) {
+                        pts.erase(pts.begin() + i + 1);
+                    }
+                    changed = true;
+                }
+            }
+
+            if (!changed) span++;
+        }
+    }*/
+    
+    template<typename T>
+    double SmoothPath(std::vector<T> &pts, const StateSpace<T> &stateSpace) {
+        
+        
+        /*int span = 2;
+        while (span < pts.size()) {
+            bool changed = false;
+            for (int i = 0; i+span < pts.size(); i++) {
+                if (stateSpace.transitionValid(pts[i], pts[i+span])) {
+                    for (int x = 1; x < span; x++) {
+                        pts.erase(pts.begin() + i + 1);
+                    }
+                    changed = true;
+                }
+            }
+
+            if (!changed) span++;
+        }*/
+        
+        /**/for(int i = 2; i < pts.size() - 2; i++) {
+            if (stateSpace.transitionValid(pts[0], pts[i])) {
+                for (int n = i - 1; n > 0; n--) {
+                    pts.erase(pts.begin() + 1);
+                }
+                i = 1;
+            }
+            if (stateSpace.transitionValid(pts[i], pts[pts.size() - 1])) {
+                for (int n = pts.size() - 1 - i - 1; n > 0; n--) {
+                    pts.erase(pts.begin() + i + 1);
+                }
+            }
+        }
+        
+        int span = 2;
+        while (span < pts.size()) {
+            bool changed = false;
+            for (int i = 0; i+span < pts.size(); i++) {
+                if (stateSpace.transitionValid(pts[i], pts[i+span])) {
+                    for (int x = 1; x < span; x++) {
+                        pts.erase(pts.begin() + i + 1);
+                    }
+                    changed = true;
+                }
+            }
+
+            if (!changed) span++;
+        }
+        
+        double r_length = 0.0;
+        for(int i = 0;i<pts.size()-1;i++){
+            r_length+=stateSpace.distance(pts[i],pts[i+1]);
+        }
+        return r_length;
+        
+        
+        /*for(int s = 0, d = pts.size() - 1; s < d - 1; s++, d--) {
+            for(int i = s + 1; i < d; i++) {
+                if(stateSpace.transitionValid(pts[s], pts[i])) {
+                    int n = i - s - 1;
+                    d -= n;
+                    for(; n > 0; n--) {
+                        pts.erase(pts.begin() + s + 1);
+                    }
+                    i = s + 1;
+                }
+                if(stateSpace.transitionValid(pts[i], pts[d])) {
+                    int n = d - i - 1;
+                    for(; n > 0; n--) {
+                        pts.erase(pts.begin() + i + 1);
+                    }
+                    d = i;
+                }
+            }
+        }*/
+    }
+
+};
